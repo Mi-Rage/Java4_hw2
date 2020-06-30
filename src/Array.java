@@ -1,3 +1,4 @@
+import java.util.Arrays;
 
 public class Array {
     private int arr[];
@@ -59,9 +60,50 @@ public class Array {
 
     // homework
     // insert(index, value);
+    public void insert(int index, int value) {
+        if (index < 0 || index > size) {
+            throw new ArrayIndexOutOfBoundsException("index " + index + " is out of bounds");
+        }
+        int[] temp = arr;
+        arr = new int[++size];
+        System.arraycopy(temp, 0, arr, 0, index);
+        arr[index] = value;
+        System.arraycopy(temp, index, arr, index + 1, temp.length - index);
+    }
     // delete(val);
+    //Удаляем первое найденное значение
+    public void deleteVal(int val) {
+        int index = -1;
+        for (int i = 0; i < size; i++) {
+            if (arr[i] == val) {
+                index = i;
+                break;
+            }
+        }
+        if (index < 0) {
+            throw new RuntimeException("Value " + val + " is NOT found!");
+        } else {
+            deleteInd(index);
+        }
+    }
     // delete(index);
+    public void deleteInd(int index) {
+        if (index < 0 || index >= size) {
+            throw new ArrayIndexOutOfBoundsException("index " + index + " is out of bounds");
+        }
+        int[] temp = arr;
+        arr = new int[--size];
+        System.arraycopy(temp, 0, arr, 0, index);
+        System.arraycopy(temp, index + 1, arr, index, temp.length - index - 1);
+    }
     // deleteAll();
+    public void deleteAll() {
+        if (arr == null) {
+            throw new NullPointerException();
+        }
+        size = 0;
+        arr = new int[size];
+    }
 
     @Override
     public String toString() {
@@ -114,9 +156,10 @@ public class Array {
         arr[b] = temp;
     }
 
+    // сортировка пузырями как ни крути, имеет сложность O(n^2), что не эффективно для больших массивов
     public void sortBubble() {
-        for (int i = 0; i < size; i++) {
-            for (int j = 0; j < size - 1; j++) {
+        for (int i = 0; i < size - 1; i++) {         // Нет необходимости посещать
+            for (int j = 0; j < size - i - 1; j++) { // уже отстортированные элементы
                 if (arr[j] > arr[j + 1])
                     swap(j, j + 1);
             }
@@ -124,6 +167,7 @@ public class Array {
         isSorted = true;
     }
 
+    // сотрировка выбора имеет сложность O(n^2), что так же не эффективно для большиъ массивов
     public void sortSelect() {
         for (int flag = 0; flag < size; flag++) {
             int cMin = flag;
@@ -135,6 +179,7 @@ public class Array {
         isSorted = true;
     }
 
+    // сортировка вставкой на мой взшляд так же имеет сложность O(n^2)
     public void sortInsert() {
         for (int out = 0; out < size; out++) {
             int temp = arr[out];
@@ -146,5 +191,41 @@ public class Array {
             arr[in] = temp;
         }
         isSorted = true;
+    }
+
+    // сортировка подсчетом, самая простая версия которую смог изобразить
+    // не работает с отрицательными числами в исходном массиве, нужно доработать
+    // сложность алгоритма линейная и напрямую зависит от к-ва элементов в исходном массиве и диапазона данных
+    // O(n + k).
+    // да, ещё и память дополнительную требует, но это может и не проблема.
+    public void countingSort() {
+        if (arr == null) {
+            throw new NullPointerException();
+        }
+        if (arr.length == 1) {
+           return;
+        }
+        // найдем максимальное значение исходного массива, чтобы знать каким размером создать массив подсчетов
+        int max = arr[0];
+        for(int each : arr) {
+            if (each > max) {
+                max = each;
+            }
+        }
+        // массив вначений подсчетов размерностью макс число + 1
+        int[] counts = new int[max + 1];
+        // заполняем массив подсчетов
+        for (int each : arr) {
+            counts[each]++;
+        }
+        int position = 0; // начинаем перезаписывать исхожный массив с начального индекса
+        for (int number = 0; number < counts.length; number++) { // берём значение
+            int count = counts[number]; // сколько раз в массиве встретилось это значение
+            while (count > 0) {
+                arr[position] = number; // столько раз записываем в исходный массив это значение
+                position++;
+                count--;
+            }
+        }
     }
 }
